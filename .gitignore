@@ -1,0 +1,18 @@
+# voog-cli — tool git repo
+# Sites live in separate directories; this repo is the tool only.
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Env files (just in case)
+.env
