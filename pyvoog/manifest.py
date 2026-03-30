@@ -150,7 +150,7 @@ def save(manifest, site_dir):
 # Display
 # ------------------------------------------------------------------
 
-def display(manifest, verbose=False):
+def display(manifest, out, verbose=False):
     """Print a summary (and optionally full file list) of a manifest."""
     layouts = manifest.get("layouts", [])
     assets = manifest.get("assets", [])
@@ -158,46 +158,21 @@ def display(manifest, verbose=False):
     components = [l for l in layouts if l.get("component")]
     page_layouts = [l for l in layouts if not l.get("component")]
 
-    print(f"  Layouts:    {len(page_layouts)}")
-    print(f"  Components: {len(components)}")
-    print(f"  Assets:     {len(assets)}")
+    out.info(f"  Layouts:    {len(page_layouts)}")
+    out.info(f"  Components: {len(components)}")
+    out.info(f"  Assets:     {len(assets)}")
 
     if verbose:
         if page_layouts:
-            print("\n  Layouts:")
+            out.info("\n  Layouts:")
             for entry in sorted(page_layouts, key=lambda x: x.get("file", "")):
-                print(f"    {entry['file']}")
+                out.info(f"    {entry['file']}")
         if components:
-            print("\n  Components:")
+            out.info("\n  Components:")
             for entry in sorted(components, key=lambda x: x.get("file", "")):
-                print(f"    {entry['file']}")
+                out.info(f"    {entry['file']}")
         if assets:
-            print("\n  Assets:")
+            out.info("\n  Assets:")
             for entry in sorted(assets, key=lambda x: x.get("file", "")):
-                print(f"    {entry['file']}")
+                out.info(f"    {entry['file']}")
 
-
-# ------------------------------------------------------------------
-# Diff
-# ------------------------------------------------------------------
-
-def diff(local_manifest, remote_manifest):
-    """
-    Compare a local manifest against a remote one.
-    Returns a dict:
-        missing  — files on remote, not local
-        extra    — files local, not on remote
-        matched  — files present on both sides
-    """
-    def _file_set(m):
-        entries = m.get("layouts", []) + m.get("assets", [])
-        return {e["file"] for e in entries if e.get("file")}
-
-    local_files = _file_set(local_manifest)
-    remote_files = _file_set(remote_manifest)
-
-    return {
-        "missing": sorted(remote_files - local_files),
-        "extra": sorted(local_files - remote_files),
-        "matched": sorted(local_files & remote_files),
-    }

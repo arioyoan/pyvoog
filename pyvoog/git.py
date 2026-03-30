@@ -85,24 +85,6 @@ def last_commit_info(path):
     return {"hash": parts[0], "message": parts[1], "date": parts[2]}
 
 
-def changed_tpl_files(path):
-    """
-    Return a list of .tpl files in layouts/ or components/ that have been
-    modified since the last commit (i.e. working tree vs HEAD).
-    Returns an empty list if there is no git repo or no commits yet.
-    """
-    code, out, _err = _git("diff", "HEAD", "--name-only", cwd=path)
-    if code != 0 or not out:
-        return []
-    files = []
-    for line in out.splitlines():
-        line = line.strip()
-        if line.endswith(".tpl") and (
-            line.startswith("layouts/") or line.startswith("components/")
-        ):
-            files.append(line)
-    return files
-
 
 def changed_files(path):
     """
@@ -142,26 +124,3 @@ def commit_files(path, files, message):
         raise RuntimeError(f"git commit failed: {err}")
     return True
 
-
-def commit_layouts(path, message):
-    """
-    Stage layouts/, components/ and asset directories, then commit.
-    This intentionally ignores other files (package.json, built JS, etc.)
-    so only site template files are tracked by voog-cli's auto-commits.
-    Returns True if a commit was made, False if nothing to commit.
-    Raises RuntimeError on failure.
-    """
-    # Stage template and asset dirs (git add ignores missing dirs)
-    for d in ("layouts/", "components/", "stylesheets/", "javascripts/",
-              "images/", "assets/", "manifest.json"):
-        _git("add", d, cwd=path)
-
-    # Check if anything is actually staged
-    code, out, _err = _git("diff", "--cached", "--quiet", cwd=path)
-    if code == 0:
-        return False  # nothing staged
-
-    code, _out, err = _git("commit", "-m", message, cwd=path)
-    if code != 0:
-        raise RuntimeError(f"git commit failed: {err}")
-    return True

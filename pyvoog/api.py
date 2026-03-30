@@ -35,6 +35,25 @@ class VoogAPI:
             self._out.log(msg)
 
     # ------------------------------------------------------------------
+    # Shared error handling
+    # ------------------------------------------------------------------
+
+    def _handle_http_error(self, exc, url):
+        """Translate urllib HTTPError into APIError."""
+        if exc.code == 401:
+            raise APIError(
+                "Authentication failed (401). "
+                "Check api_token in your .voog file.",
+                status_code=401,
+            )
+        if exc.code == 404:
+            raise APIError(
+                f"Not found (404): {url}",
+                status_code=404,
+            )
+        raise APIError(f"HTTP {exc.code} for {url}", status_code=exc.code)
+
+    # ------------------------------------------------------------------
     # Internal request helper
     # ------------------------------------------------------------------
 
@@ -57,18 +76,7 @@ class VoogAPI:
                 raw = resp.read()
                 return raw if binary else json.loads(raw)
         except urllib.error.HTTPError as exc:
-            if exc.code == 401:
-                raise APIError(
-                    "Authentication failed (401). "
-                    "Check api_token in your .voog file.",
-                    status_code=401,
-                )
-            if exc.code == 404:
-                raise APIError(
-                    f"Not found (404): {url}",
-                    status_code=404,
-                )
-            raise APIError(f"HTTP {exc.code} for {url}", status_code=exc.code)
+            self._handle_http_error(exc, url)
         except urllib.error.URLError as exc:
             if _retry > 0:
                 self._log(f"Network error ({exc.reason}), retrying in 2s…")
@@ -97,9 +105,19 @@ class VoogAPI:
     def get_layouts(self):
         """
         Return all layouts/components for this site (list only, no body).
-        Single call using per_page=250 (Voog max).
+        Paginated using per_page=250 (Voog max).
         """
-        return self._get("/admin/api/layouts?per_page=250")
+        layouts = []
+        page = 1
+        while True:
+            page_data = self._get(f"/admin/api/layouts?per_page=250&page={page}")
+            if not page_data:
+                break
+            layouts.extend(page_data)
+            if len(page_data) < 250:
+                break
+            page += 1
+        return layouts
 
     def get_layout(self, layout_id):
         """Fetch a single layout by ID, including its body content."""

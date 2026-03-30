@@ -1,4 +1,4 @@
-# voog-cli
+# pyvoog
 
 > **Work in progress** — has not been tested end-to-end in all scenarios. Issues and feedback are welcome.
 
@@ -19,9 +19,9 @@ Manage Voog CMS site templates and design assets directly via the REST API.
 - **Push** locally modified files back to the server (layouts + text assets)
 - **Conflict detection** — push warns when the server has changed since your last pull
 - **Manifest-scoped git** — only Voog-tracked files are committed; developer files are ignored
-- `voog check` compares local files against the server without changing anything
-- `voog manifest` inspects the remote file structure
-- Partial pulls: `voog pull layouts` or `voog pull assets`
+- `pyvoog check` compares local files against the server without changing anything
+- `pyvoog manifest` inspects the remote file structure
+- Partial pulls: `pyvoog pull layouts` or `pyvoog pull assets`
 - Dry-run mode for both pull and push
 - Multi-site support via `--site` flag
 
@@ -32,19 +32,19 @@ Manage Voog CMS site templates and design assets directly via the REST API.
 1. **Clone this repo** into any directory (it lives separately from your site repos):
 
    ```bash
-   git clone https://github.com/Voog/voog-cli.git
+   git clone https://github.com/Robothead-eu/pyvoog.git
    ```
 
 2. **Set up a shell alias** (optional but recommended):
 
    **Windows (PowerShell profile)**:
    ```powershell
-   function voog { python "C:\path\to\voog-cli\voog.py" @args }
+   function pyvoog { python "C:\path\to\pyvoog\pyvoog.py" @args }
    ```
 
    **macOS / Linux (~/.bashrc or ~/.zshrc)**:
    ```bash
-   alias voog="python ~/path/to/voog-cli/voog.py"
+   alias pyvoog="python ~/path/to/pyvoog/pyvoog.py"
    ```
 
 3. **Python 3.11+** must be on your PATH. Verify: `python --version`
@@ -55,38 +55,38 @@ Manage Voog CMS site templates and design assets directly via the REST API.
 
 ```bash
 # 1. Create a new site directory
-voog init ./my-site --host mysite.voog.com --token YOUR_API_TOKEN
+pyvoog init ./my-site --host mysite.voog.com --token YOUR_API_TOKEN
 
 # 2. Pull everything
 cd ./my-site
-voog pull
+pyvoog pull
 
 # 3. Edit files locally, then push changes
-voog push
+pyvoog push
 
 # 4. Check sync status at any time
-voog check
+pyvoog check
 ```
 
-### Adding voog-cli to an existing site directory
+### Adding pyvoog to an existing site directory
 
 ```bash
 cd /path/to/existing-site
-voog init --host mysite.voog.com --token YOUR_API_TOKEN
-voog pull
+pyvoog init --host mysite.voog.com --token YOUR_API_TOKEN
+pyvoog pull
 ```
 
 ---
 
 ## Commands
 
-### `voog init [DIR] --host HOST --token TOKEN`
+### `pyvoog init [DIR] --host HOST --token TOKEN`
 
 Initialise a site directory.
 
 ```bash
-voog init --host mysite.voog.com --token abc123
-voog init ./my-site --host mysite.voog.com --token abc123
+pyvoog init --host mysite.voog.com --token abc123
+pyvoog init ./my-site --host mysite.voog.com --token abc123
 ```
 
 Creates:
@@ -96,16 +96,16 @@ Creates:
 
 ---
 
-### `voog pull [layouts|assets] [--dry-run] [--reset]`
+### `pyvoog pull [layouts|assets] [--dry-run] [--reset]`
 
 Pull files from the server. The server is always the source of truth.
 
 ```bash
-voog pull                  # pull everything (layouts + assets)
-voog pull layouts          # only .tpl files (layouts + components)
-voog pull assets           # only CSS, JS, images, fonts
-voog pull --dry-run        # see what would change, without writing
-voog pull --reset          # also remove orphaned local .tpl files
+pyvoog pull                  # pull everything (layouts + assets)
+pyvoog pull layouts          # only .tpl files (layouts + components)
+pyvoog pull assets           # only CSS, JS, images, fonts
+pyvoog pull --dry-run        # see what would change, without writing
+pyvoog pull --reset          # also remove orphaned local .tpl files
 ```
 
 After a successful pull, changed files are automatically committed to git.
@@ -113,15 +113,15 @@ Only manifest-tracked files are staged — developer files in the same directori
 
 ---
 
-### `voog push [FILE ...] [--dry-run]`
+### `pyvoog push [FILE ...] [--dry-run]`
 
 Push locally modified files to the server.
 
 ```bash
-voog push                              # push all changed manifest-tracked files
-voog push layouts/page.tpl             # push a specific file
-voog push stylesheets/main.css         # push a CSS file
-voog push --dry-run                    # see what would be pushed
+pyvoog push                              # push all changed manifest-tracked files
+pyvoog push layouts/page.tpl             # push a specific file
+pyvoog push stylesheets/main.css         # push a CSS file
+pyvoog push --dry-run                    # see what would be pushed
 ```
 
 **How push works:**
@@ -138,17 +138,17 @@ voog push --dry-run                    # see what would be pushed
 
 **Not supported (yet):**
 - Binary assets (images, fonts) — these must be uploaded via the Voog editor
-- Creating new files on the server — create them in Voog first, then `voog pull`
+- Creating new files on the server — create them in Voog first, then `pyvoog pull`
 
 ---
 
-### `voog check`
+### `pyvoog check`
 
 Compare local files against the server without changing anything.
 
 ```bash
-voog check
-voog check --verbose
+pyvoog check
+pyvoog check --verbose
 ```
 
 Reports:
@@ -159,34 +159,34 @@ Reports:
 
 ---
 
-### `voog manifest [--save]`
+### `pyvoog manifest [--save]`
 
 Fetch and display the remote file structure.
 
 ```bash
-voog manifest              # show summary
-voog manifest --verbose    # show full file list
-voog manifest --save       # write manifest.json to site directory
+pyvoog manifest              # show summary
+pyvoog manifest --verbose    # show full file list
+pyvoog manifest --save       # write manifest.json to site directory
 ```
 
 ---
 
-### `voog status`
+### `pyvoog status`
 
 Show site info, manifest summary, and last git commit.
 
 ```bash
-voog status
+pyvoog status
 ```
 
 ---
 
-### `voog help [command]`
+### `pyvoog help [command]`
 
 ```bash
-voog help
-voog help pull
-voog help push
+pyvoog help
+pyvoog help pull
+pyvoog help push
 ```
 
 ---
@@ -202,7 +202,7 @@ api_token=your_api_token_here
 protocol=https
 ```
 
-**Never commit `.voog` — it contains your API token.** The `voog init` command adds it to `.gitignore` automatically.
+**Never commit `.voog` — it contains your API token.** The `pyvoog init` command adds it to `.gitignore` automatically.
 
 ### Finding your API token
 
@@ -223,15 +223,15 @@ api_token=token_b
 ```
 
 ```bash
-voog pull --site staging.voog.com
-voog pull --site production.voog.com
+pyvoog pull --site staging.voog.com
+pyvoog pull --site production.voog.com
 ```
 
 ---
 
 ## Directory structure
 
-voog-cli creates/pulls files into this structure (same as the Ruby kit):
+pyvoog creates/pulls files into this structure (same as the Ruby kit):
 
 ```
 site-dir/
@@ -258,10 +258,10 @@ site-dir/
 
 ---
 
-## Updating voog-cli
+## Updating pyvoog
 
 ```bash
-cd ~/path/to/voog-cli
+cd ~/path/to/pyvoog
 git pull
 ```
 
@@ -270,8 +270,8 @@ git pull
 ## Migrating from the Ruby voog-kit
 
 1. Keep your existing site directory as-is
-2. Run `voog init --host your.voog.com --token YOUR_TOKEN` inside it
-3. Run `voog pull` — all files are re-pulled reliably (including those with hyphens in filenames that the Ruby kit missed)
+2. Run `pyvoog init --host your.voog.com --token YOUR_TOKEN` inside it
+3. Run `pyvoog pull` — all files are re-pulled reliably (including those with hyphens in filenames that the Ruby kit missed)
 4. The Ruby kit is no longer needed
 
 ---
@@ -279,7 +279,7 @@ git pull
 ## Troubleshooting
 
 **`No .voog config file found`**  
-Run `voog init --host YOUR_HOST --token YOUR_TOKEN` in your site directory.
+Run `pyvoog init --host YOUR_HOST --token YOUR_TOKEN` in your site directory.
 
 **`Authentication failed (401)`**  
 Your API token in `.voog` is invalid or expired. Get a new one from the Voog admin panel.
@@ -288,10 +288,10 @@ Your API token in `.voog` is invalid or expired. Get a new one from the Voog adm
 The site hostname in `.voog` is wrong. Check the `host=` line.
 
 **`CONFLICT — server was modified after last pull`**  
-Someone edited the file on the server since your last `voog pull`. Run `voog pull` to sync, then re-apply your local changes.
+Someone edited the file on the server since your last `pyvoog pull`. Run `pyvoog pull` to sync, then re-apply your local changes.
 
 **Files with hyphens not pulling with the Ruby kit**  
-This is a known Ruby kit bug. Use `voog pull` instead — it calls the API directly.
+This is a known Ruby kit bug. Use `pyvoog pull` instead — it calls the API directly.
 
 **Git not found**  
 Install git or add it to your PATH. The tool still works without git — you just won't get auto-commits or change detection for push.

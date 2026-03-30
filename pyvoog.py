@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 """
-voog.py — Voog CMS command-line tool.
+pyvoog.py — Voog CMS command-line tool.
 
 A reliable Python replacement for the Ruby voog-kit.
 Pulls site templates and assets directly via the Voog REST API.
 
 Usage:
-    python voog.py <command> [options]
+    python pyvoog.py <command> [options]
 
-Run  python voog.py help  for the full command reference.
+Run  python pyvoog.py help  for the full command reference.
 """
 
 import argparse
 import os
 import sys
 
-from voog_cli import __version__
-from voog_cli.config import load_config, ConfigError
-from voog_cli.api import VoogAPI, APIError
-from voog_cli.output import Output
+from pyvoog import __version__
+from pyvoog.config import load_config, ConfigError
+from pyvoog.api import VoogAPI, APIError
+from pyvoog.output import Output
 
 
 # ------------------------------------------------------------------
@@ -26,12 +26,12 @@ from voog_cli.output import Output
 # ------------------------------------------------------------------
 
 HELP_TEXT = """\
-voog {version} — Voog CMS command-line tool
+pyvoog {version} — Voog CMS command-line tool
 
 USAGE
-    python voog.py <command> [options]
+    python pyvoog.py <command> [options]
 
-    Set up a shell alias to call it as just  voog  from any site directory:
+    Set up a shell alias to call it as just  pyvoog  from any site directory:
     (see README.md for setup instructions)
 
 COMMANDS
@@ -41,8 +41,8 @@ COMMANDS
       git repository. DIR defaults to the current directory.
 
       Examples:
-          python voog.py init --host mysite.voog.com --token abc123
-          python voog.py init ./my-site --host mysite.voog.com --token abc123
+          python pyvoog.py init --host mysite.voog.com --token abc123
+          python pyvoog.py init ./my-site --host mysite.voog.com --token abc123
 
   pull [--dry-run] [--reset]
       Pull all layout, component .tpl files and design assets from the server.
@@ -52,30 +52,30 @@ COMMANDS
       left untouched.
 
       Examples:
-          python voog.py pull
-          python voog.py pull --dry-run
-          python voog.py pull --reset
+          python pyvoog.py pull
+          python pyvoog.py pull --dry-run
+          python pyvoog.py pull --reset
 
   check
       Compare local files against the server without writing anything.
       Shows missing, modified, and extra files.
 
       Example:
-          python voog.py check
+          python pyvoog.py check
 
   manifest [--save]
       Fetch and display the remote manifest (file list).
       Add --save to write manifest.json to the site directory.
 
       Examples:
-          python voog.py manifest
-          python voog.py manifest --save
+          python pyvoog.py manifest
+          python pyvoog.py manifest --save
 
   status
       Show site info: host, manifest summary, and last git commit.
 
       Example:
-          python voog.py status
+          python pyvoog.py status
 
   push [FILE ...] [--dry-run]
       Push locally modified layouts and text assets (CSS/JS) to the server.
@@ -83,9 +83,9 @@ COMMANDS
       ignored automatically. Detects server-side conflicts before uploading.
 
       Examples:
-          python voog.py push
-          python voog.py push layouts/page.tpl stylesheets/main.css
-          python voog.py push --dry-run
+          python pyvoog.py push
+          python pyvoog.py push layouts/page.tpl stylesheets/main.css
+          python pyvoog.py push --dry-run
 
   watch (not yet implemented)
       Watch local files for changes and push automatically.
@@ -96,24 +96,24 @@ GLOBAL OPTIONS
     --version       Print version and exit
 
 WHERE TO RUN
-    Run voog from inside your site directory (where .voog lives),
-    or from any subdirectory — voog walks up to find .voog.
+    Run pyvoog from inside your site directory (where .voog lives),
+    or from any subdirectory — pyvoog walks up to find .voog.
 
     The tool lives in its own directory and operates on the current
     working directory. Example workflow:
 
         cd ~/sites/mysite
-        python ~/tools/voog-cli/voog.py pull
+        python ~/tools/pyvoog/pyvoog.py pull
 
 FILES
     .voog        — Site config (host, api_token). Never commit this file.
-    .gitignore   — Created by  voog init  to exclude .voog from git.
+    .gitignore   — Created by  pyvoog init  to exclude .voog from git.
     manifest.json — Updated automatically on every pull.
 """.format(version=__version__)
 
 COMMAND_HELP = {
     "init": """\
-voog init [DIR] --host HOST --token TOKEN
+pyvoog init [DIR] --host HOST --token TOKEN
 
 Initialise a site directory.
 
@@ -124,11 +124,11 @@ Arguments:
     --protocol  http or https (default: https)
 
 Examples:
-    python voog.py init --host mysite.voog.com --token abc123
-    python voog.py init ./new-site --host mysite.voog.com --token abc123
+    python pyvoog.py init --host mysite.voog.com --token abc123
+    python pyvoog.py init ./new-site --host mysite.voog.com --token abc123
 """,
     "pull": """\
-voog pull [--dry-run] [--reset]
+pyvoog pull [--dry-run] [--reset]
 
 Pull all layouts, components, and design assets from the Voog server.
 Server content always overwrites local files.
@@ -140,37 +140,37 @@ Arguments:
     --reset   Also remove local .tpl files not present on the server
 
 Examples:
-    python voog.py pull
-    python voog.py pull --dry-run
-    python voog.py pull --reset
+    python pyvoog.py pull
+    python pyvoog.py pull --dry-run
+    python pyvoog.py pull --reset
 """,
     "check": """\
-voog check
+pyvoog check
 
 Compare local files against the server.
 Reports missing, modified, and extra files without writing anything.
 
 Example:
-    python voog.py check
-    python voog.py check --verbose
+    python pyvoog.py check
+    python pyvoog.py check --verbose
 """,
     "manifest": """\
-voog manifest [--save]
+pyvoog manifest [--save]
 
 Fetch the remote manifest and display a summary.
 Use --save to write manifest.json to the site directory.
 
 Examples:
-    python voog.py manifest
-    python voog.py manifest --save --verbose
+    python pyvoog.py manifest
+    python pyvoog.py manifest --save --verbose
 """,
     "status": """\
-voog status
+pyvoog status
 
 Show site info: host, manifest summary, and last git commit.
 
 Example:
-    python voog.py status
+    python pyvoog.py status
 """,
 }
 
@@ -180,15 +180,15 @@ Example:
 # ------------------------------------------------------------------
 
 def cmd_init(args, out):
-    from voog_cli.init_cmd import init
+    from pyvoog.init_cmd import init
     target = args.dir or os.getcwd()
     ok = init(target, args.host, args.token, protocol=args.protocol, out=out)
     return 0 if ok else 1
 
 
 def cmd_pull(args, out, config, site_dir):
-    from voog_cli.pull import pull
-    from voog_cli import git
+    from pyvoog.pull import pull
+    from pyvoog import git
 
     api = VoogAPI(config, output=out)
 
@@ -221,7 +221,7 @@ def cmd_pull(args, out, config, site_dir):
                 git.ensure_repo(site_dir)
                 subset_label = f" ({subset})" if subset else ""
                 message = (
-                    f"voog pull{subset_label}: "
+                    f"pyvoog pull{subset_label}: "
                     f"{len(succeeded)} files"
                 )
                 committed = git.commit_files(
@@ -240,7 +240,7 @@ def cmd_pull(args, out, config, site_dir):
 
 
 def cmd_check(args, out, config, site_dir):
-    from voog_cli.check import check, display_check_result
+    from pyvoog.check import check, display_check_result
 
     api = VoogAPI(config, output=out)
     result = check(api, site_dir, out=out)
@@ -249,12 +249,13 @@ def cmd_check(args, out, config, site_dir):
     issues = (
         len(result["layouts"]["missing"])
         + len(result["layouts"]["modified"])
+        + len(result["assets"]["missing"])
     )
     return 1 if (result.get("error") or issues) else 0
 
 
 def cmd_manifest(args, out, config, site_dir):
-    from voog_cli import manifest as mf
+    from pyvoog import manifest as mf
 
     api = VoogAPI(config, output=out)
 
@@ -275,7 +276,7 @@ def cmd_manifest(args, out, config, site_dir):
     remote_manifest = mf.build_from_api(layouts, assets)
 
     out.info("\nRemote manifest:")
-    mf.display(remote_manifest, verbose=args.verbose)
+    mf.display(remote_manifest, out, verbose=args.verbose)
 
     if args.save:
         mf.save(remote_manifest, site_dir)
@@ -285,13 +286,13 @@ def cmd_manifest(args, out, config, site_dir):
 
 
 def cmd_status(args, out, config, site_dir):
-    from voog_cli.status import status
+    from pyvoog.status import status
     status(site_dir, config, out)
     return 0
 
 
 def cmd_push(args, out, config, site_dir):
-    from voog_cli.push import push
+    from pyvoog.push import push
 
     api = VoogAPI(config, output=out)
 
@@ -332,12 +333,12 @@ def cmd_help(args, out):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        prog="voog",
+        prog="pyvoog",
         description="Voog CMS command-line tool",
         add_help=True,
     )
     parser.add_argument(
-        "--version", action="version", version=f"voog {__version__}"
+        "--version", action="version", version=f"pyvoog {__version__}"
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true",
@@ -415,7 +416,7 @@ def _resolve_site_dir(args):
     For all other commands, walk up from cwd to find .voog.
     Returns (site_dir, config) or raises ConfigError.
     """
-    from voog_cli.config import find_voog_file
+    from pyvoog.config import find_voog_file
     voog_file = find_voog_file()
     if voog_file:
         return os.path.dirname(os.path.abspath(voog_file))
@@ -494,7 +495,7 @@ def main():
     handler = dispatch.get(args.command)
     if not handler:
         out.error(f"Unknown command: {args.command}")
-        out.info("Run  voog help  for the full command reference.")
+        out.info("Run  pyvoog help  for the full command reference.")
         sys.exit(1)
 
     try:

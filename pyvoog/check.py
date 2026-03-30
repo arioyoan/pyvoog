@@ -184,5 +184,5 @@ def display_check_result(result, out):
     else:
         out.info(
             f"{total_issues} issue(s) found. "
-            "Run  voog pull  to sync from server."
+            "Run  pyvoog pull  to sync from server."
         )

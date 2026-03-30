@@ -16,7 +16,7 @@ from . import git
 
 
 SITE_GITIGNORE = """\
-# Voog CLI — auto-generated .gitignore
+# pyvoog — auto-generated .gitignore
 
 # API token — never commit this
 .voog
@@ -96,7 +96,7 @@ def init(target_dir, host, api_token, protocol="https", out=None):
     try:
         cfg = load_config(site_dir=abs_dir)
         out and out.info(f"\nReady. Site: {cfg.host}")
-        out and out.info("Run  voog pull  to download all templates and assets.")
+        out and out.info("Run  pyvoog pull  to download all templates and assets.")
     except ConfigError as exc:
         out and out.error(f"Config verification failed: {exc}")
         return False

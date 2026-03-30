@@ -21,12 +21,11 @@ class ConfigError(Exception):
 
 
 class SiteConfig:
-    def __init__(self, section, host, api_token, protocol="https", overwrite=True):
+    def __init__(self, section, host, api_token, protocol="https"):
         self.section = section
         self.host = host
         self.api_token = api_token
         self.protocol = protocol
-        self.overwrite = overwrite
 
     @property
     def base_url(self):
@@ -65,7 +64,7 @@ def load_config(site_dir=None, site_name=None):
     if not voog_file:
         raise ConfigError(
             "No .voog config file found in this directory (or any parent).\n"
-            "Run  voog init --host <host> --token <token>  to set up a site here."
+            "Run  pyvoog init --host <host> --token <token>  to set up a site here."
         )
 
     cp = configparser.ConfigParser()
@@ -111,18 +110,16 @@ def load_config(site_dir=None, site_name=None):
         host=host,
         api_token=api_token,
         protocol=cfg.get("protocol", "https"),
-        overwrite=cfg.getboolean("overwrite", True),
     )
 
 
-def write_voog_file(path, host, api_token, protocol="https", overwrite=True):
+def write_voog_file(path, host, api_token, protocol="https"):
     """Write a .voog config file."""
     content = (
         f"[{host}]\n"
         f"host={host}\n"
         f"api_token={api_token}\n"
         f"protocol={protocol}\n"
-        f"overwrite={'true' if overwrite else 'false'}\n"
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)

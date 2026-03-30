@@ -105,7 +105,8 @@ def pull(api, site_dir, subset=None, dry_run=False, reset=False, out=None):
 
     if not dry_run and layouts:
         try:
-            manifest = build_from_api(layouts, [])
+            manifest = _load_or_empty(site_dir)
+            manifest["layouts"] = build_from_api(layouts, [])["layouts"]
             save_manifest(manifest, site_dir)
             out and out.log("Updated manifest.json (layouts).")
         except OSError as exc:

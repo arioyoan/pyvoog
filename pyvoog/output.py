@@ -38,13 +38,11 @@ class Output:
         print(f"\n{msg}")
         print("-" * len(msg))
 
-    def summary(self, succeeded, failed, skipped=0, dry_run=False):
+    def summary(self, succeeded, failed, dry_run=False):
         prefix = "[dry-run] " if dry_run else ""
         parts = [f"{prefix}{len(succeeded)} written"]
         if failed:
             parts.append(f"{len(failed)} failed")
-        if skipped:
-            parts.append(f"{skipped} skipped")
         print(f"\nDone: {', '.join(parts)}.")
 
     # ------------------------------------------------------------------
